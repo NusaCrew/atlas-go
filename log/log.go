@@ -16,12 +16,24 @@ type Logger struct {
 	serviceName string
 }
 
-func Initialize(logLevel Level, serviceName string) {
+// Initialize initializes the package logger.
+// It accepts an optional logrus.Formatter as the third parameter. If none is provided,
+// it defaults to JSONFormatter. The variadic parameter keeps the function backward
+// compatible with existing two-argument calls.
+func Initialize(logLevel Level, serviceName string, formatterArgs ...logrus.Formatter) {
 	once.Do(func() {
 		log := logrus.New()
 
 		log.SetLevel(mapToLogrusLevel(logLevel))
-		log.SetFormatter(&logrus.JSONFormatter{})
+
+		// Choose formatter: use provided formatter if any, otherwise default to JSON
+		var formatter logrus.Formatter
+		if len(formatterArgs) > 0 && formatterArgs[0] != nil {
+			formatter = formatterArgs[0]
+		} else {
+			formatter = &logrus.JSONFormatter{}
+		}
+		log.SetFormatter(formatter)
 		log.SetOutput(os.Stdout)
 
 		logger = &Logger{
