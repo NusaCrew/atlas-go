@@ -123,7 +123,7 @@ func getLatestMigrationVersion(path string) uint {
 			continue
 		}
 
-		version, err := strconv.ParseUint(parts[0], 10, 32)
+		version, err := strconv.ParseUint(parts[0], 10, 64)
 		if err != nil {
 			continue
 		}
