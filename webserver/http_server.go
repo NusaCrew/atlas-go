@@ -11,6 +11,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type httpServer struct {
@@ -35,6 +36,11 @@ type HTTPWebServerConfig struct {
 func NewHTTPWebServer(ctx context.Context, config HTTPWebServerConfig) (WebServer, error) {
 	sMux := runtime.NewServeMux(
 		runtime.WithIncomingHeaderMatcher(AllowCorrelationID),
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{
+				UseProtoNames: true,
+			},
+		}),
 	)
 
 	addr := fmt.Sprintf("%s:%d", config.GRPCHost, config.GRPCPort)
