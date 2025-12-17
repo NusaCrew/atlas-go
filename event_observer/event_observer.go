@@ -2,6 +2,7 @@ package event_observer
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/NusaCrew/atlas-go/log"
@@ -23,11 +24,13 @@ type Subscriber struct {
 
 type EventObserver struct {
 	mu          sync.RWMutex
+	serviceName string
 	subscribers map[string][]Subscriber
 }
 
-func NewEventObserver() *EventObserver {
+func NewEventObserver(serviceName string) *EventObserver {
 	return &EventObserver{
+		serviceName: serviceName,
 		subscribers: make(map[string][]Subscriber),
 	}
 }
@@ -45,7 +48,7 @@ func (eo *EventObserver) NotifySubscribers(ctx context.Context, event *Event) {
 
 	for _, subscriber := range subscribers {
 		go func(s Subscriber) {
-			tracer := log.NewTracer(ctx, s.SubscriberName, "EventObserver").WithFields(map[string]any{
+			tracer := log.NewTracer(ctx, s.SubscriberName, fmt.Sprintf("EventObserver-%s", eo.serviceName)).WithFields(map[string]any{
 				"subscriber": s.SubscriberName,
 				"topic":      s.TopicName,
 			})

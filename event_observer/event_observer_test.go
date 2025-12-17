@@ -10,14 +10,15 @@ import (
 )
 
 func TestNewEventObserver(t *testing.T) {
-	eo := NewEventObserver()
+	eo := NewEventObserver("some-service-name")
 	assert.NotNil(t, eo)
 	assert.NotNil(t, eo.subscribers)
+	assert.Equal(t, "some-service-name", eo.serviceName)
 	assert.Empty(t, eo.subscribers)
 }
 
 func TestSubscribe(t *testing.T) {
-	eo := NewEventObserver()
+	eo := NewEventObserver("some-service-name")
 	subscriber := Subscriber{
 		TopicName: "test-topic",
 		HandlerFunc: func(ctx context.Context, event *Event) error {
@@ -31,7 +32,7 @@ func TestSubscribe(t *testing.T) {
 }
 
 func TestNotifySubscribers(t *testing.T) {
-	eo := NewEventObserver()
+	eo := NewEventObserver("some-service-name")
 	var callCount int
 	var mu sync.Mutex
 
@@ -58,7 +59,7 @@ func TestNotifySubscribers(t *testing.T) {
 }
 
 func TestNotifySubscribersHandlerError(t *testing.T) {
-	eo := NewEventObserver()
+	eo := NewEventObserver("some-service-name")
 	var called bool
 	var mu sync.Mutex
 
@@ -85,7 +86,7 @@ func TestNotifySubscribersHandlerError(t *testing.T) {
 }
 
 func TestNotifyContextCancellation(t *testing.T) {
-	eo := NewEventObserver()
+	eo := NewEventObserver("some-service-name")
 	var called bool
 	var mu sync.Mutex
 
@@ -115,7 +116,7 @@ func TestNotifyContextCancellation(t *testing.T) {
 }
 
 func TestConcurrentSubscribeAndNotify(t *testing.T) {
-	eo := NewEventObserver()
+	eo := NewEventObserver("some-service-name")
 	var counter int
 	var mu sync.Mutex
 
