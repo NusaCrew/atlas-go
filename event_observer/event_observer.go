@@ -39,6 +39,7 @@ func (eo *EventObserver) Subscribe(topic string, subscriber Subscriber) {
 	eo.mu.Lock()
 	defer eo.mu.Unlock()
 	eo.subscribers[topic] = append(eo.subscribers[topic], subscriber)
+	log.Info("subscriber %s successfully joined topic %s", subscriber.SubscriberName, topic)
 }
 
 func (eo *EventObserver) NotifySubscribers(ctx context.Context, event *Event) {

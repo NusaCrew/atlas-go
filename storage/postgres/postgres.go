@@ -80,10 +80,14 @@ func InitializeDatabase(ctx context.Context, conf config.PostgresConfig) (Storag
 	}
 
 	if conf.PostgresMigrationConfig.RunMigrations {
+		log.Info("running postgresql migrations")
+
 		if err = c.migrateDatabase(conf.PostgresMigrationConfig.MigrationsPath); err != nil {
 			return nil, err
 		}
 	}
+
+	log.Info("successfully connected to postgresql database")
 
 	return c, nil
 }
