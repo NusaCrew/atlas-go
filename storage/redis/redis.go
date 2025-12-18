@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/NusaCrew/atlas-go/config"
+	"github.com/NusaCrew/atlas-go/log"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -30,6 +31,7 @@ func NewRedisClient(ctx context.Context, cfg config.RedisConfig) (RedisClient, e
 		return nil, err
 	}
 
+	log.Info("successfully connected to redis")
 	return &redisClient{
 		client: rdb,
 	}, nil
