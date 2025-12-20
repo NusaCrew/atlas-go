@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -58,12 +59,27 @@ type MongoSSLConfig struct {
 type MongoConfig struct {
 	Host         string `env:"MONGO_HOST" envDefault:"localhost"`
 	Port         int    `env:"MONGO_PORT" envDefault:"27017"`
-	Username     string `env:"MONGO_USERNAME" envDefault:"mongo"`
-	Password     string `env:"MONGO_PASSWORD" envDefault:"password"`
+	Username     string `env:"MONGO_USERNAME"`
+	Password     string `env:"MONGO_PASSWORD"`
 	DatabaseName string `env:"MONGO_DATABASE_NAME" envDefault:"mongo"`
-	AuthSource   string `env:"MONGO_AUTH_SOURCE" envDefault:"admin"`
+	AuthSource   string `env:"MONGO_AUTH_SOURCE"`
 	MongoConnectionConfig
 	MongoSSLConfig
+}
+
+func (c MongoConfig) GenerateURI() string {
+	var user string
+	if c.Username != "" && c.Password != "" {
+		user = fmt.Sprintf("%s:%s@", c.Username, c.Password)
+	}
+
+	return fmt.Sprintf("mongodb://%s%s:%d/%s?authSource=%s",
+		user,
+		c.Host,
+		c.Port,
+		c.DatabaseName,
+		c.AuthSource,
+	)
 }
 
 type RedisConfig struct {

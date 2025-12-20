@@ -30,16 +30,7 @@ func InitializeDatabase(ctx context.Context, conf config.MongoConfig) (Storage, 
 	ctx, cancel := context.WithTimeout(ctx, conf.ConnectTimeout)
 	defer cancel()
 
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/%s?authSource=%s",
-		conf.Username,
-		conf.Password,
-		conf.Host,
-		conf.Port,
-		conf.DatabaseName,
-		conf.AuthSource,
-	)
-
-	opts := options.Client().ApplyURI(uri).
+	opts := options.Client().ApplyURI(conf.GenerateURI()).
 		SetMaxPoolSize(conf.MaxPoolSize).
 		SetMinPoolSize(conf.MinPoolSize).
 		SetMaxConnIdleTime(conf.MaxConnIdleTime).
