@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/NusaCrew/atlas-go/log"
 )
@@ -42,19 +43,22 @@ func (eo *EventObserver) Subscribe(topic string, subscriber Subscriber) {
 	log.Info("subscriber %s successfully joined topic %s", subscriber.SubscriberName, topic)
 }
 
-func (eo *EventObserver) NotifySubscribers(ctx context.Context, event *Event) {
+func (eo *EventObserver) NotifySubscribers(parentCtx context.Context, event *Event) {
 	eo.mu.RLock()
 	subscribers := eo.subscribers[event.Topic]
 	eo.mu.RUnlock()
 
+	log.Info("publishing topic %s to %d subscribers", event.Topic, len(subscribers))
 	for _, subscriber := range subscribers {
 		go func(s Subscriber) {
+			ctx, cancel := context.WithTimeout(context.WithoutCancel(parentCtx), 30*time.Second)
+			defer cancel()
 			tracer := log.NewTracer(ctx, s.SubscriberName, fmt.Sprintf("EventObserver-%s", eo.serviceName)).WithFields(map[string]any{
 				"subscriber": s.SubscriberName,
 				"topic":      s.TopicName,
 			})
 
-			tracer.Info(log.OK, log.Request, "starting event handler for topic %s", event.Topic)
+			log.Info("starting event handler for topic %s", event.Topic)
 
 			err := s.HandlerFunc(ctx, event)
 			if err != nil {
