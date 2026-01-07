@@ -18,6 +18,6 @@ func RequestLogger(ctx context.Context, req any, info *grpc.UnaryServerInfo, han
 		return handler(ctx, req)
 	}
 
-	log.Debug("%s: request: %+v", info.FullMethod, req)
+	log.Info("%s, request: %+v", info.FullMethod, req)
 	return handler(ctx, req)
 }
